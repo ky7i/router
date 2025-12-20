@@ -30,12 +30,20 @@ func (n *node) addRouter(path string, handler http.HandlerFunc) {
 			handler: handler,
 		}
 		n.children = append(n.children, child)
+		return
 	}
 
 walk:
 	for {
+		// go next loop when root
+		if n.path == "" {
+			n = n.children[0]
+			continue walk
+		}
+
 		i := longestCommonPrefix(path, n.path)
 
+		// split n
 		if i < len(n.path) {
 			child := &node{
 				path:     n.path[i:],
@@ -48,15 +56,19 @@ walk:
 			n.children = []*node{child} // check syntax
 			n.handler = nil
 
-			// sideeffect
-			n.insertChild(path[i:], handler)
+			// side effect
+			child = n.createChild(path[i-1:], handler)
+			n.children = append(n.children, child)
+			return
 		}
 
-		part := path[i:]
+		// make new nodes
+		part := path[i-1:]
 		for {
 			j := 0
 			if len(n.children) <= j {
-				n.insertChild(part, handler)
+				child := n.createChild(part, handler)
+				n.children = append(n.children, child)
 				break walk
 			}
 
@@ -69,11 +81,14 @@ walk:
 
 			j++
 		}
-
 	}
-
 }
 
-func (n *node) insertChild(path string, handler http.HandlerFunc) {
-
+func (n *node) createChild(path string, handler http.HandlerFunc) *node {
+	node := &node{
+		path:     path,
+		children: []*node{},
+		handler:  handler,
+	}
+	return node
 }
