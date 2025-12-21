@@ -38,6 +38,7 @@ walk:
 	// loop for , search in depth
 	for {
 		// go to the next loop when root
+		// root has only one child which begins "/"
 		// TODO refactor
 		if n.path == "" {
 			n = n.children[0]
@@ -65,7 +66,7 @@ walk:
 		}
 
 		// make new nodes
-		part := path[i-1:]
+		// part := path[i-1:]
 		// loop for children, search in breadth
 		// 		for j := range n.children {
 		// 			if len(n.children) <= j {
@@ -81,8 +82,8 @@ walk:
 		// 			}
 		// 		}
 
-		if index := strings.Index(n.indices, string(part[0])); index == -1 {
-			n.insertChild(part, handler)
+		if index := strings.Index(n.indices, string(path[i])); index == -1 {
+			n.insertChild(path[i-1:], handler)
 			return
 		} else {
 			n = n.children[index]
@@ -99,4 +100,10 @@ func (n *node) insertChild(path string, handler http.HandlerFunc) {
 	}
 	n.children = append(n.children, node)
 	n.indices = n.indices + string(path[0])
+
+	n.sortChild()
+}
+
+func (n *node) sortChild() {
+		
 }
