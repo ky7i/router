@@ -64,6 +64,7 @@ walk:
 
 		// make new nodes
 		part := path[i-1:]
+		// loop for children, search in breadth
 		for {
 			j := 0
 			if len(n.children) <= j {
