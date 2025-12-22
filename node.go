@@ -33,13 +33,16 @@ func longestCommonPrefix(a, b string) int {
 }
 
 func (n *node) addRouter(path string, handler http.HandlerFunc) {
+	// n is root
 	if n.path == "" && len(n.children) == 0 {
 		child := &node{
-			path:    path,
-			indices: "",
-			nType:   "static",
-			handler: handler,
+			path:     path[0:],
+			indices:  "",
+			children: []*node{},
+			nType:    "static",
+			handler:  handler,
 		}
+		n.indices = string(path[0])
 		n.children = append(n.children, child)
 		return
 	}
@@ -61,17 +64,19 @@ walk:
 		if i < len(n.path) {
 			child := &node{
 				path:     n.path[i:],
+				indices:  n.indices,
 				nType:    n.nType,
 				children: n.children,
 				handler:  n.handler,
 			}
 			n.path = n.path[:i]
+			n.indices = string(n.path[i])
 			n.nType = "static"
 			n.children = []*node{child} // check syntax
 			n.handler = nil
 
 			// side effect
-			n.indices = n.indices + string(path[i])
+			// n.indices = n.indices + string(path[i])
 			n.children = append(n.children, n.createChild(path[i:], handler))
 			return
 		}
