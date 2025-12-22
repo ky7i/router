@@ -6,11 +6,21 @@ import (
 )
 
 type node struct {
-	path     string
-	indices  string
-	nType    string
+	// path is a segment of full path which is separated by common prefixes.
+	path string
+
+	// indices is the byte slice one of which is a first byte of a child node.
+	// split any segments to segment[0] as indices and segment[0:] as a child node.
+	//
+	// ※invariant
+	// len(n.children) == len(indices)
+	// index of indices is connected with one of children, n.indices[i] was prefix of n.children[i]
+	indices string
+
 	children []*node
-	handler  http.HandlerFunc
+
+	nType   string
+	handler http.HandlerFunc
 }
 
 func longestCommonPrefix(a, b string) int {
@@ -40,10 +50,10 @@ walk:
 		// go to the next loop when root
 		// root has only one child which begins "/"
 		// TODO refactor
-		if n.path == "" {
-			n = n.children[0]
-			continue walk
-		}
+		// 		if n.path == "" {
+		// 			n = n.children[0]
+		// 			continue walk
+		// 		}
 
 		i := longestCommonPrefix(path, n.path)
 
@@ -61,7 +71,8 @@ walk:
 			n.handler = nil
 
 			// side effect
-			n.insertChild(path[i-1:], handler)
+			n.indices = n.indices + string(path[i])
+			n.children = append(n.children, n.createChild(path[i:], handler))
 			return
 		}
 
@@ -83,7 +94,9 @@ walk:
 		// 		}
 
 		if index := strings.Index(n.indices, string(path[i])); index == -1 {
-			n.insertChild(path[i-1:], handler)
+			// TODO: indices should be created using append
+			n.indices = n.indices + string(path[i])
+			n.children = append(n.children, n.createChild(path[i:], handler))
 			return
 		} else {
 			n = n.children[index]
@@ -92,18 +105,11 @@ walk:
 	}
 }
 
-func (n *node) insertChild(path string, handler http.HandlerFunc) {
+func (n *node) createChild(path string, handler http.HandlerFunc) *node {
 	node := &node{
 		path:     path,
 		children: []*node{},
 		handler:  handler,
 	}
-	n.children = append(n.children, node)
-	n.indices = n.indices + string(path[0])
-
-	n.sortChild()
-}
-
-func (n *node) sortChild() {
-		
+	return node
 }
