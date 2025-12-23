@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -50,6 +51,7 @@ func (n *node) addRouter(path string, handler http.HandlerFunc) {
 walk:
 	// loop for , search in depth
 	for {
+		fmt.Printf("path: %q, node: %q\r\n", path, n.path)
 		// go to the next loop when root
 		// root has only one child which begins "/"
 		// TODO refactor
@@ -69,14 +71,14 @@ walk:
 				children: n.children,
 				handler:  n.handler,
 			}
-			n.path = n.path[:i]
 			n.indices = string(n.path[i])
+			n.path = n.path[:i]
 			n.nType = "static"
 			n.children = []*node{child} // check syntax
 			n.handler = nil
 
 			// side effect
-			// n.indices = n.indices + string(path[i])
+			n.indices = n.indices + string(path[i])
 			n.children = append(n.children, n.createChild(path[i:], handler))
 			return
 		}
@@ -105,6 +107,7 @@ walk:
 			return
 		} else {
 			n = n.children[index]
+			path = path[i:]
 			continue walk
 		}
 	}

@@ -45,6 +45,7 @@ func TestLongestCommonPrefix(t *testing.T) {
 		"/us",
 		"/usx",
 		"/",
+		"",
 	}
 	path := "/user"
 
