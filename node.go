@@ -92,6 +92,8 @@ walk:
 }
 
 func (n *node) createChild(path string, handler http.HandlerFunc) *node {
+	// validate path
+	// multiple slashes
 	node := &node{
 		path:     path,
 		children: []*node{},
