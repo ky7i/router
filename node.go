@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 )
 
@@ -40,7 +41,7 @@ func longestCommonPrefix(a, b string) int {
 }
 
 func (n *node) addRouter(path string, handler http.HandlerFunc) {
-	// n is root
+	// when n is root
 	if n.path == "" && n.indices == "" {
 		child := &node{
 			path:     path[0:],
@@ -99,6 +100,11 @@ func (n *node) addRouter(path string, handler http.HandlerFunc) {
 func (n *node) createChild(path string, handler http.HandlerFunc) *node {
 	// validate path
 	// multiple slashes
+	str := strings.Split(path[1:len(path)-1], "/")
+	if i := slices.Index(str, ""); 0 < i {
+		panic("path must not have multiple slash")
+	}
+
 	node := &node{
 		path:     path,
 		children: []*node{},
