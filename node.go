@@ -116,8 +116,8 @@ func (n *node) createChild(path string, handler http.HandlerFunc) *node {
 func (n *node) getValue(path string) *node {
 	for {
 		if i := strings.Index(n.indices, string(path[0])); 0 < i {
+			path = path[len(n.path)+1:]
 			n = n.children[i]
-			path = path[i:]
 			continue
 		} else {
 			return nil
