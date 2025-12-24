@@ -52,13 +52,6 @@ walk:
 	// loop for , search in depth
 	for {
 		fmt.Printf("path: %q, node: %q\r\n", path, n.path)
-		// go to the next loop when root
-		// root has only one child which begins "/"
-		// TODO refactor
-		// 		if n.path == "" {
-		// 			n = n.children[0]
-		// 			continue walk
-		// 		}
 
 		i := longestCommonPrefix(path, n.path)
 
@@ -78,27 +71,12 @@ walk:
 			n.handler = nil
 
 			// side effect
-			n.indices = n.indices + string(path[i])
-			n.children = append(n.children, n.createChild(path[i:], handler))
+			if i < len(path) {
+				n.indices = n.indices + string(path[i])
+				n.children = append(n.children, n.createChild(path[i:], handler))
+			}
 			return
 		}
-
-		// make new nodes
-		// part := path[i-1:]
-		// loop for children, search in breadth
-		// 		for j := range n.children {
-		// 			if len(n.children) <= j {
-		// 				n.insertChild(part, handler)
-		// 				break walk
-		// 			}
-		//
-		// 			child := n.children[j]
-		// 			if child.path[0] == part[0] {
-		// 				n = child
-		// 				path = part // be carefull updating the wide scope variable
-		// 				continue walk
-		// 			}
-		// 		}
 
 		if index := strings.Index(n.indices, string(path[i])); index == -1 {
 			// TODO: indices should be created using append
