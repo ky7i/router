@@ -1,6 +1,7 @@
 package router
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -29,10 +30,6 @@ func (r *Router) POST(path string, handler func(http.ResponseWriter, *http.Reque
 	r.insert("POST", path, handler)
 }
 
-// func (r *Router) DELETE(path string, handler func(http.ResponseWriter, *http.Request)) {
-// 	r.insert("DELETE", path, handler)
-// }
-
 func (r *Router) insert(method string, path string, handler http.HandlerFunc) {
 	if path == "" {
 		panic("Registering path must not be empty.")
@@ -60,14 +57,13 @@ func getMethodIndexOf(method string) int {
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	// path := req.URL.Path
-	// method := req.Method
-	// log.Printf("method: %q, path: %q\r\n", method, path)
-	// methodIndex := getMethodIndexOf(method)
-
-	// if node := r.trees[methodIndex].get(path); node != nil {
-	// 	node.Handler(w, req)
-	// 	return
-	// }
-	// r.NotFound(w, req)
+	path := req.URL.Path
+	method := req.Method
+	log.Printf("method: %q, path: %q\r\n", method, path)
+	methodIndex := getMethodIndexOf(method)
+	if node := r.trees[methodIndex].getValue(path); node != nil {
+		node.handler(w, req)
+		return
+	}
+	r.NotFound(w, req)
 }

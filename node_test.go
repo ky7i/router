@@ -21,6 +21,8 @@ func TestAddRouter(t *testing.T) {
 	n.addRouter("/user/userId", dummyHandler)
 	n.addRouter("/user/profile", dummyHandler)
 	n.addRouter("/us", dummyHandler)
+	n.addRouter("/apis/parking", dummyHandler)
+	n.addRouter("/usa", dummyHandler)
 
 	n.walk(0)
 }
@@ -30,7 +32,7 @@ func (n *node) walk(depth int) {
 		return
 	}
 
-	fmt.Println(strings.Repeat("    ", depth), n.path)
+	fmt.Println(strings.Repeat("  ", depth), n.path)
 
 	for _, child := range n.children {
 		child.walk(depth + 1)

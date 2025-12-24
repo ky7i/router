@@ -20,6 +20,12 @@ type node struct {
 
 	children []*node
 
+	// node type
+	// - "root"     : root node
+	//                indices of root must be only "/"
+	// - "static"   : normal node
+	// - "param"    : path parameter node which includes ":"
+	// - "catch-all": path wildcard node which includes "*"
 	nType   string
 	handler http.HandlerFunc
 }
@@ -35,7 +41,7 @@ func longestCommonPrefix(a, b string) int {
 
 func (n *node) addRouter(path string, handler http.HandlerFunc) {
 	// n is root
-	if n.path == "" && len(n.children) == 0 {
+	if n.path == "" && n.indices == "" {
 		child := &node{
 			path:     path[0:],
 			indices:  "",
@@ -48,7 +54,6 @@ func (n *node) addRouter(path string, handler http.HandlerFunc) {
 		return
 	}
 
-walk:
 	// loop for , search in depth
 	for {
 		fmt.Printf("path: %q, node: %q\r\n", path, n.path)
@@ -86,7 +91,7 @@ walk:
 		} else {
 			n = n.children[index]
 			path = path[i:]
-			continue walk
+			continue
 		}
 	}
 }
@@ -100,4 +105,17 @@ func (n *node) createChild(path string, handler http.HandlerFunc) *node {
 		handler:  handler,
 	}
 	return node
+}
+
+func (n *node) getValue(path string) *node {
+	for {
+		if i := strings.Index(n.indices, string(path[0])); 0 < i {
+			n = n.children[i]
+			path = path[i:]
+			continue
+		} else {
+			return nil
+		}
+	}
+	return n
 }
