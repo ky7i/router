@@ -3,7 +3,6 @@ package router
 import (
 	"fmt"
 	"net/http"
-	"slices"
 	"strings"
 )
 
@@ -98,13 +97,6 @@ func (n *node) addRouter(path string, handler http.HandlerFunc) {
 }
 
 func (n *node) createChild(path string, handler http.HandlerFunc) *node {
-	// validate path
-	// multiple slashes
-	str := strings.Split(path[1:len(path)-1], "/")
-	if i := slices.Index(str, ""); 0 < i {
-		panic("path must not have multiple slash")
-	}
-
 	node := &node{
 		path:     path,
 		children: []*node{},
@@ -115,13 +107,18 @@ func (n *node) createChild(path string, handler http.HandlerFunc) *node {
 
 func (n *node) getValue(path string) *node {
 	for {
-		if i := strings.Index(n.indices, string(path[0])); 0 < i {
-			path = path[len(n.path)+1:]
-			n = n.children[i]
-			continue
-		} else {
+		i := strings.Index(n.indices, string(path[0]))
+		// no match child
+		if i < 0 {
 			return nil
 		}
+
+		child := n.children[i]
+		if path == child.path && n.handler != nil {
+			return child
+		}
+		path = path[len(n.path)+1:]
+		n = child
+		continue
 	}
-	return n
 }

@@ -3,6 +3,7 @@ package router
 import (
 	"log"
 	"net/http"
+	"strings"
 )
 
 type Router struct {
@@ -33,8 +34,12 @@ func (r *Router) POST(path string, handler func(http.ResponseWriter, *http.Reque
 func (r *Router) insert(method string, path string, handler http.HandlerFunc) {
 	if path == "" {
 		panic("Registering path must not be empty.")
-	} else if path[0] != '/' {
+	}
+	if path[0] != '/' {
 		panic("Path must have the prefix '/'.")
+	}
+	if strings.Contains(path, "//") {
+		panic("path must not have multiple slash")
 	}
 
 	switch method {

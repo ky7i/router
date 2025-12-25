@@ -7,23 +7,43 @@ import (
 	"testing"
 )
 
-func TestAddRouter(t *testing.T) {
+func TestGetValue(t *testing.T) {
+	// n := createRouter()
 
+}
+
+var testStr string
+
+func fakeHandler(str string) func(http.ResponseWriter, *http.Request) {
+	return func(http.ResponseWriter, *http.Request) {
+		testStr = str
+	}
+}
+
+func createRouter() *node {
 	n := &node{
 		path:     "",
 		children: []*node{},
 		handler:  nil,
 	}
 
-	dummyHandler := func(_ http.ResponseWriter, _ *http.Request) {}
+	paths := []string{
+		"/user",
+		"/user/userId",
+		"/user/profile",
+		"/us",
+		"/apis/parking",
+		"/usa",
+	}
 
-	n.addRouter("/user", dummyHandler)
-	n.addRouter("/user/userId", dummyHandler)
-	n.addRouter("/user/profile", dummyHandler)
-	n.addRouter("/us", dummyHandler)
-	n.addRouter("/apis/parking", dummyHandler)
-	n.addRouter("/usa", dummyHandler)
+	for _, path := range paths {
+		n.addRouter(path, fakeHandler(path))
+	}
+	return n
+}
 
+func TestAddRouter(t *testing.T) {
+	n := createRouter()
 	n.walk(0)
 }
 
